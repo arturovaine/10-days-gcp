@@ -86,3 +86,14 @@
 - Criar um alerta automático para quando um valor ultrapassa um limite
 
 </details>
+
+
+### Dia 1
+
+- Criar uma tabela e carregar um CSV manualmente
+- Executar uma consulta SQL simples (ex: SELECT * FROM tabela LIMIT 10;)
+- Filtrar dados por data (ex: WHERE data >= '2024-01-01')
+
+
+> Fonte escolhida: https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-electronics-store?resource=download
+
