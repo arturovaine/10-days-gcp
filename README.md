@@ -90,10 +90,36 @@
 
 ### Dia 1
 
-- Criar uma tabela e carregar um CSV manualmente
-- Executar uma consulta SQL simples (ex: SELECT * FROM tabela LIMIT 10;)
-- Filtrar dados por data (ex: WHERE data >= '2024-01-01')
+#### 1. Criar uma tabela e carregar um CSV manualmente
+
+- No console, adicionar fonte de dados em "Explorer.... + ADD" 
+- Escolher "Arquivo local" ou "Google Cloud Storage" se csv tiver mais de 100mb
+- Escolher "Criar novo dataset" e outras configurações de padrão
+
+Utilizei um arquivo com mais de 100mb, então precisei fazer upload no Cloud Storage. A referência do dataset (que encontrei no kaggle) vai estar no passo a passo no GitHub.
+
+> Fonte de dados escolhida: https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-electronics-store?resource=download
+
+#### 2. Executar uma consulta SQL simples
+
+Na lateral esquerda, nos "três pontos" ao lado do dataset, selecionar: "Query" ou "Consulta"
+
+```
+SELECT *
+FROM `<nome-do-projeto>.<base>.<tabela>`
+LIMIT 100;
+```
+
+#### 3. Filtrar dados por data
+
+```
+SELECT *
+FROM `<nome-do-projeto>.<base>.<tabela>`
+WHERE event_time > '2020-11-19 08:13:00 UTC'
+AND event_time < '2020-11-19 08:15:00 UTC'
+LIMIT 1000;
+```
 
 
-> Fonte escolhida: https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-electronics-store?resource=download
+
 
