@@ -96,7 +96,7 @@
 - Escolher "Arquivo local" ou "Google Cloud Storage" se csv tiver mais de 100mb
 - Escolher "Criar novo dataset" e outras configurações de padrão
 
-Utilizei um arquivo com mais de 100mb, então precisei fazer upload no Cloud Storage. A referência do dataset (que encontrei no kaggle) vai estar no passo a passo no GitHub.
+Utilizei um arquivo com mais de 100mb, então precisei fazer upload no Cloud Storage.
 
 > Fonte de dados escolhida: https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-electronics-store?resource=download
 
@@ -120,6 +120,66 @@ AND event_time < '2020-11-19 08:15:00 UTC'
 LIMIT 1000;
 ```
 
+### Dia 2
 
+#### 1. Criar uma tabela baseada em outra
 
+Para utilizar dados manipulados de uma tabela e inserir em outra (criar automaticamente outra tabela):
+
+```
+CREATE OR REPLACE TABLE `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.purchase_history_limited` AS
+SELECT *
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+LIMIT 1000;
+```
+Neste exemplo simples só foi limitado o número de linhas em 1000, sem outra manipulação adicional.
+
+#### 2. Criar uma tabela com dados únicos removendo duplicatas (DISTINCT)
+
+Para criar uma tabela com valores únicos:
+
+```
+CREATE OR REPLACE TABLE `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.purchase_history_unique` AS
+SELECT DISTINCT *
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`;
+```
+
+Consulta adicional para checar linhas repetidas:
+
+```
+WITH duplicados AS (
+  SELECT
+    event_time,
+    order_id,
+    product_id,
+    category_id,
+    category_code,
+    brand,
+    price,
+    user_id,
+    COUNT(*) OVER (PARTITION BY event_time,
+    order_id,
+    product_id,
+    category_id,
+    category_code,
+    brand,
+    user_id) AS qtd_duplicadas
+  FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+)
+SELECT *
+FROM duplicados
+WHERE qtd_duplicadas > 1;
+```
+
+#### 3. Criar uma tabela com contagem de registros por categoria (GROUP BY)
+
+```
+CREATE OR REPLACE TABLE `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.purchase_count_by_category` AS
+SELECT
+  category_code,
+  COUNT(*) AS total_registros
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+GROUP BY category_code
+ORDER BY total_registros DESC;
+```
 
