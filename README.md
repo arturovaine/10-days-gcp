@@ -183,3 +183,146 @@ GROUP BY category_code
 ORDER BY total_registros DESC;
 ```
 
+### Dia 3
+
+#### 1. Criar consulta de soma de valores agrupados (SUM)
+
+
+Consulta de GMV em milhões:
+
+```
+SELECT
+  category_code,
+  SUM(price)/1000000 AS GMV_MM
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+GROUP BY category_code
+ORDER BY GMV_MM DESC;
+
+```
+
+#### 2. Criar colunas calculadas (CASE WHEN, IF)
+
+Criar faixas de preço:
+
+```
+SELECT
+  brand,
+  price,
+  category_code,
+  CASE
+    WHEN price > 1000 THEN 'Caro'
+    WHEN price BETWEEN 501 AND 1000 THEN 'Médio'
+    ELSE 'Barato'
+  END AS faixa_preco
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+;
+```
+
+#### 3. Criar uma tabela temporária e testar consultas
+
+```
+-- Início do script
+CREATE TEMP TABLE my_temp_table AS
+SELECT
+  event_time,
+  order_id,
+  product_id,
+  category_id,
+  category_code,
+  brand,
+  price,
+  user_id
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+WHERE category_code IS NOT NULL
+;
+
+-- Agora você pode testar consultas usando 'my_temp_table'
+-- Exemplo: mostrar as 10 maiores vendas
+SELECT
+  order_id,
+  user_id,
+  price
+FROM my_temp_table
+ORDER BY price DESC
+LIMIT 10
+;
+
+-- Outra consulta: contar registros por categoria
+SELECT
+  category_code,
+  COUNT(*) AS total_registros
+FROM my_temp_table
+GROUP BY category_code
+ORDER BY total_registros DESC
+;
+-- Fim do script
+
+```
+
+#### 4. Exportar dados para um arquivo CSV no Cloud Storage
+
+Para exportar dados de uma tabela do BigQuery para um arquivo CSV no Cloud Storage, existem algumas maneiras comuns:
+
+1) Pela interface web do BigQuery (no Console GCP)
+No Google Cloud Console, vá em BigQuery.
+No painel de Explorer, encontre a tabela que deseja exportar.
+Clique no nome da tabela para abrir os detalhes.
+No canto superior direito, clique em Export.
+Escolha Export to GCS.
+Na janela de configuração:
+Selecione o formato de arquivo (CSV).
+Defina o caminho no Cloud Storage (por exemplo, gs://nome-do-seu-bucket/pasta/arquivo.csv).
+Ajuste outras opções, como compressão (GZIP, se quiser) ou cabeçalho de colunas no CSV.
+Clique em Export e aguarde o processo terminar.
+Assim que terminar, o arquivo CSV estará no local especificado no seu bucket do GCS.
+
+2) Usando a linha de comando (bq CLI)
+Se você preferir usar o terminal e tiver instalado e configurado o gcloud e o bq CLI, pode executar um comando bq extract. Suponha que você tenha um projeto meu_projeto, dataset meu_dataset e tabela minha_tabela, e queira exportar para gs://meu-bucket/saida.csv:
+
+```
+bq extract \
+  --destination_format=CSV \
+  --field_delimiter="," \
+  meu_projeto:meu_dataset.minha_tabela \
+  gs://meu-bucket/saida.csv
+```
+
+Observações:
+--destination_format=CSV: especifica que o formato de saída é CSV.
+--field_delimiter: define o separador de campos. Se quiser “;” ou outro caractere, você pode alterar.
+Se você quiser o arquivo comprimido (por exemplo, GZIP), pode usar a flag --compression=GZIP. Nesse caso, o nome do arquivo costuma terminar com .csv.gz.
+Ao executar, o BigQuery iniciará o job de exportação. Após a conclusão, o arquivo estará em seu bucket do GCS.
+
+3) Usando API ou SDKs
+Se você estiver automatizando via código (Python, Java, etc.), também pode usar a BigQuery Storage Write API ou as bibliotecas específicas para jobs de exportação do BigQuery. A lógica é semelhante ao CLI: você cria um job de extract apontando para seu bucket, definindo formato CSV e parâmetros de exportação.
+
+4) Dicas gerais
+Tamanho do CSV: Se sua tabela for muito grande, BigQuery pode gerar vários arquivos com sufixos numéricos (sharding) para lidar com grandes volumes.
+Controle de schema: Se quiser, por exemplo, excluir colunas ou modificar valores antes da exportação, você pode primeiro criar uma tabela temporária ou fazer uma view no BigQuery com a transformação desejada e depois exportar essa view/tabela.
+Permissões: A conta de serviço usada para o job precisa ter permissões de escrita (write) no bucket do Cloud Storage (geralmente a permissão roles/storage.objectAdmin ou roles/storage.objectCreator, etc.). Se der erro de acesso, verifique essas permissões.
+Exemplo completo via bq CLI
+
+
+- Exemplo: Exportar a tabela 'minha_tabela' do dataset 'meu_dataset'
+- no projeto 'meu_projeto' para um arquivo CSV no bucket 'meu-bucket'
+
+```
+bq extract \
+  --destination_format=CSV \
+  --field_delimiter="," \
+  --compression=GZIP \
+  meu_projeto:meu_dataset.minha_tabela \
+  gs://meu-bucket/minha_tabela_export_*.csv.gz
+```
+
+Observe o uso de * no nome do arquivo — caso a exportação gere vários “shards”. Se for um volume gerenciável e couber em um único arquivo, pode escrever um nome fixo (por exemplo, saida.csv.gz).
+
+### Dia 4
+
+#### 1. Criar uma tabela com valores acumulados (SUM() OVER())
+
+#### 2. Criar uma classificação (RANK() OVER()) de valores
+
+#### 3. Fazer uma análise de médias móveis usando SQL (AVG() OVER())
+
+
