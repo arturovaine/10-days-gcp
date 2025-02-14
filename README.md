@@ -264,6 +264,7 @@ ORDER BY total_registros DESC
 Para exportar dados de uma tabela do BigQuery para um arquivo CSV no Cloud Storage, existem algumas maneiras comuns:
 
 1) Pela interface web do BigQuery (no Console GCP)
+
 No Google Cloud Console, vá em BigQuery.
 No painel de Explorer, encontre a tabela que deseja exportar.
 Clique no nome da tabela para abrir os detalhes.
@@ -277,6 +278,7 @@ Clique em Export e aguarde o processo terminar.
 Assim que terminar, o arquivo CSV estará no local especificado no seu bucket do GCS.
 
 2) Usando a linha de comando (bq CLI)
+
 Se você preferir usar o terminal e tiver instalado e configurado o gcloud e o bq CLI, pode executar um comando bq extract. Suponha que você tenha um projeto meu_projeto, dataset meu_dataset e tabela minha_tabela, e queira exportar para gs://meu-bucket/saida.csv:
 
 ```
@@ -288,6 +290,7 @@ bq extract \
 ```
 
 Observações:
+
 --destination_format=CSV: especifica que o formato de saída é CSV.
 --field_delimiter: define o separador de campos. Se quiser “;” ou outro caractere, você pode alterar.
 Se você quiser o arquivo comprimido (por exemplo, GZIP), pode usar a flag --compression=GZIP. Nesse caso, o nome do arquivo costuma terminar com .csv.gz.
