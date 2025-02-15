@@ -324,8 +324,56 @@ Observe o uso de * no nome do arquivo — caso a exportação gere vários “sh
 
 #### 1. Criar uma tabela com valores acumulados (SUM() OVER())
 
+```
+CREATE OR REPLACE TABLE `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store-acc` AS
+SELECT
+  order_id,
+  price,
+  -- Soma acumulada de 'price' ao longo do tempo
+  SUM(price) OVER (
+    ORDER BY event_time
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS acumulado_price
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+ORDER BY event_time;
+```
+
 #### 2. Criar uma classificação (RANK() OVER()) de valores
+
+```
+CREATE OR REPLACE TABLE `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-_ranked` AS
+SELECT
+  *,
+  RANK() OVER (
+    ORDER BY price DESC
+  ) AS ranking_por_preco
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`;
+```
 
 #### 3. Fazer uma análise de médias móveis usando SQL (AVG() OVER())
 
+```
+
+CREATE OR REPLACE TABLE 
+  `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-cumulative` 
+AS
+WITH daily_agg AS (
+  SELECT 
+    DATE(event_time) AS dt,          -- Convertendo para data
+    SUM(price) AS daily_revenue      -- Soma do 'price' por dia
+  FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+  GROUP BY DATE(event_time)
+)
+SELECT
+  dt,
+  daily_revenue,
+  -- Soma acumulada ao longo dos dias (running total)
+  SUM(daily_revenue) OVER (
+    ORDER BY dt
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS cumulative_revenue
+FROM daily_agg
+ORDER BY dt;
+
+```
 
