@@ -399,3 +399,137 @@ FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-comm
 WHERE event_time >= '2020-08-01' AND event_time <= '2020-08-08';
 ```
 
+### Dia 6
+
+#### 1. Criar um painel/dashboard conectado ao BigQuery
+
+- Conectar a Fonte de Dados:
+
+    - No Looker Studio (antigo Data Studio), clique em "Criar" > "Fonte de dados" e selecione BigQuery.
+
+    - Escolha o projeto, dataset e tabela desejados (por exemplo, a tabela particionada que você criou).
+
+- Configurar o Conector:
+
+    - Revise as colunas importadas e ajuste nomes, tipos e agregações se necessário.
+
+- Criar o Dashboard:
+
+    - Após conectar a fonte de dados, crie um novo relatório e adicione a fonte.
+
+#### 2. Criar gráficos de barras e tabelas dinâmicas
+
+- Gráficos de Barras:
+    - Insira um gráfico de barras para visualizar, por exemplo, o GMV (soma de price) por category_code.
+    - Configure os eixos e formate os rótulos conforme a necessidade.
+
+- Tabelas Dinâmicas:
+    - Adicione uma tabela dinâmica que permita explorar os dados (ex.: detalhar vendas por marca, categoria e data).
+
+#### 3. Criar um filtro de data interativo
+
+- Adicionar Controle de Data:
+    - No menu, selecione "Adicionar um controle" > "Intervalo de data" e posicione-o no relatório.
+
+- Vincular ao Relatório:
+    - Configure o controle para que filtre todos os gráficos e tabelas conectadas à mesma fonte de dados.
+
+### Dia 7
+
+#### 1. Adicionar métricas calculadas
+
+- Criar Campos Calculados:
+
+    - No painel de dados do Looker Studio, clique em "Adicionar um campo".
+
+    - Exemplo: Crie uma métrica para calcular o crescimento percentual ou a taxa de conversão.
+
+    - Exemplo de Campo:
+
+```
+(SUM(price) - LAG(SUM(price)) OVER(PARTITION BY category_code
+ORDER BY DATE(event_time))) / LAG(SUM(price))
+OVER(PARTITION BY category_code
+ORDER BY DATE(event_time))
+```
+
+(Ajuste conforme sua necessidade, lembrando que campos calculados no Looker Studio são definidos usando a interface e funções disponíveis.)
+
+#### 2. Criar um gráfico de tendências com dados de séries temporais
+
+- Gráfico de Linhas:
+
+    - Adicione um gráfico de linhas para exibir a evolução de uma métrica (por exemplo, receita diária) ao longo do tempo.
+
+    - Configuração:
+    - Configure o eixo X com a data (event_time ou coluna de data) e o eixo Y com a métrica desejada (ex.: SUM(price)).
+
+
+### Dia 8
+
+#### 1. Carregar um CSV no Data Prep e visualizar os dados
+
+- Importar Dados:
+    - No Data Prep (ex.: Cloud Dataprep by Trifacta), carregue seu arquivo CSV.
+    - Visualize o dataset e identifique inconsistências ou colunas irrelevantes.
+
+#### 2. Remover colunas desnecessárias no Data Prep
+
+- Selecionar Colunas:
+    - Use as ferramentas de transformação para remover as colunas que não serão utilizadas na análise.
+
+#### 3. Criar colunas calculadas no Data Prep (ex: concatenar nome + sobrenome)
+
+Exemplo – Concatenar Nome e Sobrenome:
+
+- Crie uma nova coluna usando uma fórmula (ex.: CONCAT(nome, ' ', sobrenome)) para combinar informações de duas colunas.
+    - Aplicar Transformações:
+    - Utilize as funções disponíveis no Data Prep para limpar e padronizar os dados.
+
+### Dia 9
+
+#### 1. Filtrar registros com base em uma condição (ex: vendas acima de R$1000)
+
+- Aplicar Filtro:
+    - No Data Prep, defina um filtro para selecionar apenas registros que atendam a um critério, como vendas acima de R$1000.
+
+#### 2. Remover linhas duplicadas automaticamente
+
+- Deduplicação:
+    - Utilize a função de deduplicação do Data Prep para eliminar registros repetidos, mantendo apenas a primeira ocorrência ou conforme sua lógica de negócio.
+
+### Dia 10
+
+#### 1. Agendar uma consulta SQL no BigQuery para rodar automaticamente
+
+- Configurar Agendamento:
+    - No Console do BigQuery, após criar sua consulta, clique em "Agendar consulta" e defina o cronograma (ex.: diariamente às 02:00 AM).
+
+#### 2. Criar uma conexão entre uma planilha do Google Sheets e o BigQuery
+
+- Usar o Conector do Google Sheets:
+    - No Google Sheets, acesse "Dados" > "Conectar a BigQuery" e selecione sua consulta ou tabela.
+
+#### 3. Exportar dados do BigQuery diretamente para o Google Sheets
+
+- Exportação Direta:
+    - Configure a exportação para que os dados sejam atualizados automaticamente em um intervalo definido.
+
+#### 4. Criar uma tabela externa no BigQuery conectada a um Google Sheets
+
+- Tabela Externa:
+    - Use o comando SQL para criar uma tabela externa que aponte para um arquivo do Google Sheets:
+
+```
+CREATE OR REPLACE EXTERNAL TABLE `seu_projeto.seu_dataset.tabela_externa_sheets`
+OPTIONS (
+  format = 'CSV',
+  uris = ['https://docs.google.com/spreadsheets/d/SEU_ID/export?format=csv']
+);
+```
+
+#### 5. Criar um alerta automático para quando um valor ultrapassa um limite
+
+- Alertas:
+    - Utilize o recurso de Alertas do BigQuery ou configure uma automação com Cloud Functions e Pub/Sub para monitorar uma métrica.
+    - Exemplo: Crie uma consulta que verifique se o GMV ultrapassa um determinado valor e, se sim, acione uma notificação via e-mail ou Slack.
