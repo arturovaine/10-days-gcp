@@ -38,7 +38,7 @@
 #### Dia 5
 
 - Criar tabelas com partições por data para melhorar desempenho
-- Usar LEFT JOIN e INNER JOIN para combinar duas tabelas
+<!-- - Usar LEFT JOIN e INNER JOIN para combinar duas tabelas -->
 
 </details>
 
@@ -375,5 +375,27 @@ SELECT
 FROM daily_agg
 ORDER BY dt;
 
+```
+
+### Dia 5
+
+#### 1. Criar tabelas com partições por data para melhorar desempenho
+
+```
+CREATE OR REPLACE TABLE
+`gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store_particionamento`
+PARTITION BY DATE(event_time)
+AS
+SELECT
+event_time,
+order_id,
+product_id,
+category_id,
+category_code,
+brand,
+price,
+user_id
+FROM `gcp-study-448422.e_commerce_purchase_history_from_electronics_store.e-commerce-purchase-history-from-electronics-store`
+WHERE event_time >= '2020-08-01' AND event_time <= '2020-08-08';
 ```
 
